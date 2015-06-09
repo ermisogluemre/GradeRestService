@@ -1,0 +1,102 @@
+<project name="GradeRestService" default="war" basedir=".">
+
+   <property name="appname" value="RestService"/>
+
+	
+	<property name="caelaegs.engine" value="../../CALAEGSEngine_Migration/CALAEGSEngine/dist" />
+	<property name="dist" value="dist"/>
+	<property name="tomcatroot" value="C:\a\Dev\apache-tomcat-6.0.18" />
+	<property name="tomcat.lib" value="${tomcatroot}/lib" />
+	<property name="tomcat.deploy.dir" value="${tomcatroot}/webapps" />
+	<property name="lib.dir" value="lib" />
+	<property name="dist" value="dist" />
+	
+	<property name="war" value="${appname}.war"/>
+	<property name="jar" value="${appname}.jar"/>
+
+	<property name="src.dir" value="${basedir}/src"/>
+	<property name="build.dir" value="${basedir}/build"/>
+	<property name="build.classes.dir" value="${build.dir}/classes"/>
+	
+	<property name="deploy.dir" value="C:/a/Dev/apache-tomcat-6.0.18/webapps/" />
+	
+	<target name="compile">
+		<echo>${build.classes.dir} || ${src.dir}</echo>
+	   <mkdir dir="${build.classes.dir}"/>
+	   <javac srcdir="${src.dir}"
+	      destdir="${build.classes.dir}"
+	      debug="on"
+	      deprecation="on"
+	      classpathref="build.path"
+	      optimize="off"
+	      includes="*/**"
+	   />
+
+	</target>
+
+
+	  <!-- target name="jar" depends="compile">
+	  	<mkdir dir="${dist}" />  
+	  	<jar jarfile="${dist}/${jar}">
+	      <fileset dir="${build.classes.dir}">
+	            <include name="**/*.class" />
+	      </fileset>
+	    </jar>
+	  </target -->
+
+	  <target name="war" depends="compile">
+	  	<mkdir dir="${dist}" />
+	  	<copy file="${caelaegs.engine}/CALAEGS.jar" toDir="${lib.dir}" overwrite="true" />
+	  	<war warfile="${dist}/${war}" webxml="WebContent/WEB-INF/web.xml">
+	      <classes dir="${build.classes.dir}">
+	        <include name="**/*.class" />
+	      </classes>
+	      <lib dir="lib">
+	      	<include name="*.jar" />
+	      	<exclude name="servlet-api.jar" />
+	      </lib>
+		  <fileset dir="WebContent">
+		       <include name="index.html" />
+		  </fileset>
+	    </war>
+	  </target>
+	
+<path id="build.path">
+	<pathelement location="../GradeRestService/lib/servlet-api.jar"/>
+	<pathelement location="../GradeRestService/lib/CALAEGS.jar"/>
+		<pathelement location="../GradeRestService/lib/jackson-all-1.9.7.jar"/>
+	<pathelement location="${build.classes.dir}"/>
+</path>
+
+	
+	<target name = "undeploy" depends = "war">
+		<delete>
+			<fileset dir="${deploy.dir}">
+				<include name="${war}" />
+			</fileset>
+		</delete>
+		<delete dir="${deploy.dir}/${appname}" />
+	</target>
+	
+	<target name = "deploy" depends = "war">
+		<echo>${war}</echo>
+		<copy toDir="${deploy.dir}" overwrite="true">
+			<fileset dir="${dist}">
+		    	<include name="${war}" />
+		    </fileset>
+		</copy>
+	</target>
+	
+	<target name="clean">
+		<delete>
+			<fileset dir="${dist}">
+				<exclude name=".svn"/>
+				<include name="*.jar"/>
+				<include name="*.war"/>
+			</fileset>
+		</delete>
+		<delete dir="${build.classes.dir}" />
+	</target>
+	
+
+</project>
